@@ -68,7 +68,22 @@ private:
 public:
 
     Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C):
-        v1(vertex_A), v2(vertex_B), v3(vertex_C) {}
+        v1(vertex_A), v2(vertex_B), v3(vertex_C) {
+            if(isTriangle(vertex_A, vertex_B, vertex_C) == false)
+                throw "It's not a triangle.";
+        }
+
+    static bool isTriangle(vertex vertex_A, vertex vertex_B, vertex vertex_C){
+
+        double a = distanceOfVertexs(vertex_A, vertex_B);
+        double b = distanceOfVertexs(vertex_A, vertex_C);
+        double c = distanceOfVertexs(vertex_B, vertex_C);
+
+        if((a+b)>c && (a+c)>b && (b+c)>a)
+            return true;
+
+        return false;
+    }
 
     double area() const {
 
@@ -93,6 +108,22 @@ public:
         return sumOfLenghts;
     }
 
+};
+
+class testdestructor{
+public:
+
+    testdestructor(){
+
+    }
+
+    testdestructor(int a,int b):t1(a),t2(b){
+        if(a==0||b==0) testdestructor();
+    }
+
+    ~testdestructor();
+
+    int t1,t2;
 };
 
 double sumOfArea(std::vector<Rectangle> rects) {

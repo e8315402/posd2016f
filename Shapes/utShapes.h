@@ -26,13 +26,31 @@ TEST (HW1_3, createTriangle) {
     vertex vertex_2 = {2, 1};
     vertex vertex_3 = {4, 3};
 
-    Triangle tri(vertex_1, vertex_2, vertex_3);
+    try {
+        // This is a triangle
+        Triangle tri(vertex_1, vertex_2, vertex_3);
 
-    DOUBLES_EQUAL(3.1622777, distanceOfVertexs(vertex_1, vertex_2), epsilon);
-    DOUBLES_EQUAL(3.1622777, distanceOfVertexs(vertex_3, vertex_1), epsilon);
-    DOUBLES_EQUAL(2.8284271, distanceOfVertexs(vertex_3, vertex_2), epsilon);
+        CHECK(true);
 
-    tri.~Triangle();
+        tri.~Triangle();
+    } catch (const char * msg) {
+        CHECK(false);
+    }
+
+    vertex vertex_4 = {1, 1};
+    vertex vertex_5 = {2, 2};
+    vertex vertex_6 = {3, 3};
+
+    try {
+        // This is not a triangle
+        Triangle tri(vertex_4, vertex_5, vertex_6);
+
+        CHECK(false);
+
+        tri.~Triangle();
+    } catch (const char * msg) {
+        CHECK(true);
+    }
 }
 
 TEST (HW1_4, perimeterOfTriangle) {
