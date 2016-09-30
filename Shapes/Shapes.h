@@ -6,6 +6,8 @@
 #endif
 
 #include <vector>
+#include <string>
+#include <algorithm>
 
 typedef struct Coordinate
 {
@@ -18,6 +20,14 @@ double distanceOfVertexs(vertex vertex_1, vertex vertex_2);
 class Shape {
 
 public:
+
+    std::string name = "Shape";
+
+    Shape(std::string shapeName):name(shapeName){}
+
+    std::string getShapeName(){
+        return name;
+    }
 
     virtual double area() const = 0;
     virtual double perimeter() const = 0;
@@ -33,7 +43,7 @@ private:
 public:
 
     Rectangle(double ulcx, double ulcy, double length, double width):
-        x(ulcx),y(ulcy),l(length),w(width){}
+        Shape("Rectangle"), x(ulcx), y(ulcy), l(length), w(width){}
 
     double area() const {return l*w;}
 
@@ -50,7 +60,7 @@ private:
 public:
 
     Circle(double centerX,double centerY,double radius):
-        cx(centerX),cy(centerY),r(radius){}
+        Shape("Circle"), cx(centerX), cy(centerY), r(radius){}
 
     double area() const {return M_PI*r*r;}
 
@@ -68,7 +78,7 @@ private:
 public:
 
     Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C):
-        v1(vertex_A), v2(vertex_B), v3(vertex_C) {
+        Shape("Triangle"), v1(vertex_A), v2(vertex_B), v3(vertex_C) {
             if(isTriangle(vertex_A, vertex_B, vertex_C) == false)
                 throw "It's not a triangle.";
         }
@@ -110,41 +120,16 @@ public:
 
 };
 
-class testdestructor{
-public:
-
-    testdestructor(){
-
-    }
-
-    testdestructor(int a,int b):t1(a),t2(b){
-        if(a==0||b==0) testdestructor();
-    }
-
-    ~testdestructor();
-
-    int t1,t2;
-};
-
-double sumOfArea(std::vector<Rectangle> rects) {
+double sumOfArea(const std::vector<Shape *> & shapes) {
     double total =0;
 
-    for (Rectangle r: rects)
-        total += r.area();
+    for (Shape *shapePoint: shapes)
+        total += shapePoint->area();
 
     return total;
 }
 
-double sumOfArea(std::vector<Shape *> rects) {
-    double total =0;
-
-    for (Shape *r: rects)
-        total += r->area();
-
-    return total;
-}
-
-double sumOfPerimeter(std::vector<Shape *> shapes){
+double sumOfPerimeter(const std::vector<Shape *> & shapes){
     double total = 0;
 
     for (Shape *shapePoint: shapes)
@@ -153,18 +138,20 @@ double sumOfPerimeter(std::vector<Shape *> shapes){
     return total;
 }
 
-Shape* theLargestArea(std::vector<Shape *> shapes){
+Shape* theLargestArea(const std::vector<Shape *> & shapes){
     Shape *largestShape = nullptr;
     double largestArea = 0;
 
     for (Shape *shapePoint: shapes)
-        if(shapePoint->area() >= largestArea)
+        if(shapePoint->area() >= largestArea){
+            largestArea = shapePoint->area();
             largestShape = shapePoint;
+        }
 
     return largestShape;
 }
 
-double distanceOfVertexs(vertex vertex_1, vertex vertex_2) {
+double distanceOfVertexs(const vertex vertex_1, const vertex vertex_2) {
     double diff_X, diff_Y, distance;
 
     diff_X = vertex_1.x - vertex_2.x;
@@ -173,6 +160,35 @@ double distanceOfVertexs(vertex vertex_1, vertex vertex_2) {
     distance = std::sqrt(((diff_X * diff_X) + (diff_Y * diff_Y)));
 
     return distance;
+}
+
+void sortByDecreasingPerimeter(std::vector<Shape *> & shapes) {
+    // use the shakeSort
+    int left = 0;
+    int right = shapes.size()-1;
+    int shift = 0;
+    Shape *temp;
+
+    while(left < right){
+        for(int i = left; i < right; i++) {
+            if(shapes[i]->perimeter() < shapes[i+1]->perimeter()){
+                temp = shapes[i];
+                shapes[i] = shapes[i+1];
+                shapes[i+1] = temp;
+                shift = i;
+            }
+        }
+        right = shift;
+        for(int i = right; i > left; i--){
+            if(shapes[i]->perimeter() > shapes[i-1]->perimeter()){
+                temp = shapes[i];
+                shapes[i] = shapes[i-1];
+                shapes[i-1] = temp;
+                shift = i;
+            }
+        }
+        left = shift;
+    }
 }
 
 #endif // SHAPES_H_INCLUDED
