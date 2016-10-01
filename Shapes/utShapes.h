@@ -6,7 +6,6 @@
 #include "Shapes.h"
 
 #include <iostream>
-#include <typeinfo>
 
 const double epsilon = 0.000001;
 
@@ -108,9 +107,25 @@ TEST (HW2_1, theLargestArea) {
 }
 
 TEST (HW2_2, sortByDecreasingPerimeter) {
-    Circle cir(2,7,9.8);
-    Rectangle rect(3,8,17,18);
-    Triangle tri({4,2}, {34,34}, {2,5});
+    Circle cir_1(2,7,9.8);
+    Circle cir_2(5,4,3.6);
+
+    Rectangle rect_1(3,8,17,18);
+
+    Triangle tri_1({4,2}, {34,34}, {2,5});
+
+    std::vector<Shape *> shapes;
+    shapes.push_back(&cir_1);
+    shapes.push_back(&cir_2);
+    shapes.push_back(&rect_1);
+    shapes.push_back(&tri_1);
+
+    sortByDecreasingPerimeter(shapes);
+
+    DOUBLES_EQUAL(90.654621, shapes[0]->perimeter(), epsilon);
+    DOUBLES_EQUAL(70, shapes[1]->perimeter(), epsilon);
+    DOUBLES_EQUAL(61.575216, shapes[2]->perimeter(), epsilon);
+    DOUBLES_EQUAL(22.619467, shapes[3]->perimeter(), epsilon);
 
 }
 
