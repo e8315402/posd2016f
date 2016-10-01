@@ -92,57 +92,27 @@ TEST (HW1_6, sumOfPerimetersOfaNumberOfShapes) {
     DOUBLES_EQUAL(143.7205896, sumOfPerimeter(shapes), epsilon);
 }
 
-//TEST (HW2_1, theLargestArea) {
-//    Circle cir(2,7,9.8);
-//    Rectangle rect(3,8,17,18);
-//    Triangle tri({4,2}, {34,34}, {2,5});
-//
-//    std::vector<Shape *> shapes;
-//    shapes.push_back(&cir);
-//    shapes.push_back(&rect);
-//    shapes.push_back(&tri);
-//
-//    std::cout<<cir.area()<<"\n";
-//    std::cout<<rect.area()<<"\n";
-//    std::cout<<tri.area()<<"\n";
-//
-//    Shape *largestShape = theLargestArea(shapes);
-//
-//    std::cout<<typeid(*largestShape).name()<<"\n";
-//}
+TEST (HW2_1, theLargestArea) {
+    Circle cir(2,7,9.8);
+    Rectangle rect(3,8,17,18);
+    Triangle tri({4,2}, {34,34}, {2,5});
 
+    std::vector<Shape *> shapes;
+    shapes.push_back(&cir);
+    shapes.push_back(&rect);
+    shapes.push_back(&tri);
 
-//TEST (first, Rectangle) {
-//    Rectangle rect(0,0,4,2);
-//    DOUBLES_EQUAL(8,rect.area(),epsilon);
-//}
+    Shape *largestShape = theLargestArea(shapes);
 
-//TEST(sencond,Circle) {
-//    Circle circ(0,0,10);
-//    DOUBLES_EQUAL((M_PI*10*10),circ.area(),epsilon);
-//}
+    CHECK(!((*largestShape).getShapeName().compare("Rectangle")));
+}
 
-//TEST (third, sumOfArea) {
-//    Rectangle r1(0,0,4,2);
-//    Rectangle r2(0,0,3,3);
-//    std::vector<Rectangle> rects;
-//    rects.push_back(r1);
-//    rects.push_back(r2);
-//    DOUBLES_EQUAL(17, sumOfArea(rects),epsilon);
-//}
+TEST (HW2_2, sortByDecreasingPerimeter) {
+    Circle cir(2,7,9.8);
+    Rectangle rect(3,8,17,18);
+    Triangle tri({4,2}, {34,34}, {2,5});
 
-//TEST (fourth, sumOfArea) {
-//    std::vector<Rectangle> rects;
-//    DOUBLES_EQUAL(0, sumOfArea(rects),epsilon);
-//}
+}
 
-//TEST (fifth, sumOfArea) {
-//    Rectangle r1(0,0,4,2);
-//    Circle c1(0,0,10);
-//    std::vector<Shape *> ss;
-//    ss.push_back(&r1);
-//    ss.push_back(&c1);
-//    DOUBLES_EQUAL(308,sumOfArea(ss),epsilon);
-//}
 
 #endif // UTSHAPES_H_INCLUDED

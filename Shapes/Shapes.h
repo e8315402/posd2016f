@@ -6,6 +6,7 @@
 #endif
 
 #include <vector>
+#include <string>
 
 typedef struct Coordinate
 {
@@ -18,9 +19,17 @@ double distanceOfVertexs(vertex vertex_1, vertex vertex_2);
 class Shape {
 
 public:
+    std::string name = "Shape";
+
+    Shape(std::string shapeName):name(shapeName) {}
 
     virtual double area() const = 0;
+
     virtual double perimeter() const = 0;
+
+    std::string getShapeName(){
+        return name;
+    }
 
 };
 
@@ -33,7 +42,7 @@ private:
 public:
 
     Rectangle(double ulcx, double ulcy, double length, double width):
-        x(ulcx),y(ulcy),l(length),w(width){}
+        Shape("Rectangle"),x(ulcx), y(ulcy), l(length), w(width) {}
 
     double area() const {return l*w;}
 
@@ -50,7 +59,7 @@ private:
 public:
 
     Circle(double centerX,double centerY,double radius):
-        cx(centerX),cy(centerY),r(radius){}
+        Shape("Circle"), cx(centerX), cy(centerY), r(radius) {}
 
     double area() const {return M_PI*r*r;}
 
@@ -68,7 +77,7 @@ private:
 public:
 
     Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C):
-        v1(vertex_A), v2(vertex_B), v3(vertex_C) {
+        Shape("Triangle"), v1(vertex_A), v2(vertex_B), v3(vertex_C) {
             if(isTriangle(vertex_A, vertex_B, vertex_C) == false)
                 throw "It's not a triangle.";
         }
@@ -126,25 +135,17 @@ public:
     int t1,t2;
 };
 
-double sumOfArea(std::vector<Rectangle> rects) {
+
+double sumOfArea(const std::vector<Shape *> & shapes) {
     double total =0;
 
-    for (Rectangle r: rects)
-        total += r.area();
+    for (Shape *shapePoint: shapes)
+        total += shapePoint->area();
 
     return total;
 }
 
-double sumOfArea(std::vector<Shape *> rects) {
-    double total =0;
-
-    for (Shape *r: rects)
-        total += r->area();
-
-    return total;
-}
-
-double sumOfPerimeter(std::vector<Shape *> shapes){
+double sumOfPerimeter(const std::vector<Shape *> & shapes){
     double total = 0;
 
     for (Shape *shapePoint: shapes)
@@ -153,13 +154,15 @@ double sumOfPerimeter(std::vector<Shape *> shapes){
     return total;
 }
 
-Shape* theLargestArea(std::vector<Shape *> shapes){
+Shape* theLargestArea(std::vector<Shape *> & shapes){
     Shape *largestShape = nullptr;
     double largestArea = 0;
 
     for (Shape *shapePoint: shapes)
-        if(shapePoint->area() >= largestArea)
+        if(shapePoint->area() >= largestArea){
+            largestArea = shapePoint->area();
             largestShape = shapePoint;
+            }
 
     return largestShape;
 }
