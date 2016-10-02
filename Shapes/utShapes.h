@@ -6,17 +6,22 @@
 #include "Shapes.h"
 
 #include <iostream>
+#include <iomanip>
 
 const double epsilon = 0.000001;
 
 TEST (HW1_1, perimeterOfCircle) {
+
     Circle cir(0,0,12);
     DOUBLES_EQUAL((2*M_PI*12), cir.perimeter(), epsilon);
+
 }
 
 TEST (HW1_2, perimeterOfRectangle) {
+
     Rectangle rect(0,0,8,9);
     DOUBLES_EQUAL(34, rect.perimeter(), epsilon);
+
 }
 
 TEST (HW1_3, createTriangle) {
@@ -50,6 +55,7 @@ TEST (HW1_3, createTriangle) {
     } catch (const char * msg) {
         CHECK(true);
     }
+
 }
 
 TEST (HW1_4, perimeterOfTriangle) {
@@ -63,6 +69,7 @@ TEST (HW1_4, perimeterOfTriangle) {
     DOUBLES_EQUAL(9.1529824, tri.perimeter(), epsilon);
 
     tri.~Triangle();
+
 }
 
 TEST (HW1_5, areaOfTriangle) {
@@ -76,9 +83,11 @@ TEST (HW1_5, areaOfTriangle) {
     DOUBLES_EQUAL(4, tri.area(), epsilon);
 
     tri.~Triangle();
+
 }
 
 TEST (HW1_6, sumOfPerimetersOfaNumberOfShapes) {
+
     Circle cir(2,7,11);
     Rectangle rect(3,8,12,21);
     Triangle tri({1,1}, {3,1}, {3,4});
@@ -89,6 +98,11 @@ TEST (HW1_6, sumOfPerimetersOfaNumberOfShapes) {
     shapes.push_back(&tri);
 
     DOUBLES_EQUAL(143.7205896, sumOfPerimeter(shapes), epsilon);
+
+    cir.~Circle();
+    rect.~Rectangle();
+    tri.~Triangle();
+
 }
 
 TEST (HW2_1, theLargestArea) {
@@ -104,14 +118,18 @@ TEST (HW2_1, theLargestArea) {
     Shape *largestShape = theLargestArea(shapes);
 
     CHECK(!((*largestShape).getShapeName().compare("Rectangle")));
+
+    cir.~Circle();
+    rect.~Rectangle();
+    tri.~Triangle();
+
 }
 
 TEST (HW2_2, sortByDecreasingPerimeter) {
+
     Circle cir_1(2,7,9.8);
     Circle cir_2(5,4,3.6);
-
     Rectangle rect_1(3,8,17,18);
-
     Triangle tri_1({4,2}, {34,34}, {2,5});
 
     std::vector<Shape *> shapes;
@@ -126,6 +144,49 @@ TEST (HW2_2, sortByDecreasingPerimeter) {
     DOUBLES_EQUAL(70, shapes[1]->perimeter(), epsilon);
     DOUBLES_EQUAL(61.575216, shapes[2]->perimeter(), epsilon);
     DOUBLES_EQUAL(22.619467, shapes[3]->perimeter(), epsilon);
+
+    cir_1.~Circle();
+    cir_2.~Circle();
+    rect_1.~Rectangle();
+    tri_1.~Triangle();
+
+}
+
+TEST (HW2_3, sumOfPerimetersOfMultiShape) {
+
+    Circle cSmall(2,1,1);
+    Rectangle rTall(1,10,2,8);
+
+    std::vector<Shape *> shapes;
+    shapes.push_back(&cSmall);
+    shapes.push_back(&rTall);
+
+    Combo comboExclamation(shapes);
+
+    DOUBLES_EQUAL(26.2831853, comboExclamation.perimeter(), epsilon);
+
+    comboExclamation.~Combo();
+    cSmall.~Circle();
+    rTall.~Rectangle();
+
+}
+
+TEST (HW2_4, sumOfAreasOfMultiShape) {
+
+    Circle cSmall(2,1,1);
+    Rectangle rTall(1,10,2,8);
+
+    std::vector<Shape *> shapes;
+    shapes.push_back(&cSmall);
+    shapes.push_back(&rTall);
+
+    Combo comboExclamation(shapes);
+
+    DOUBLES_EQUAL(19.1415927, comboExclamation.area(), epsilon);
+
+    comboExclamation.~Combo();
+    cSmall.~Circle();
+    rTall.~Rectangle();
 
 }
 

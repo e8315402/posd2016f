@@ -7,7 +7,6 @@
 
 #include <vector>
 #include <string>
-#include <algorithm>
 
 typedef struct Coordinate
 {
@@ -27,6 +26,10 @@ public:
 
     std::string getShapeName(){
         return name;
+    }
+
+    void setShapeName(std::string shapeName){
+        name = shapeName;
     }
 
     virtual double area() const = 0;
@@ -69,6 +72,7 @@ public:
 };
 
 class Triangle : public Shape {
+
 private:
 
     vertex v1;
@@ -79,8 +83,10 @@ public:
 
     Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C):
         Shape("Triangle"), v1(vertex_A), v2(vertex_B), v3(vertex_C) {
+
             if(isTriangle(vertex_A, vertex_B, vertex_C) == false)
                 throw "It's not a triangle.";
+
         }
 
     static bool isTriangle(vertex vertex_A, vertex vertex_B, vertex vertex_C){
@@ -118,6 +124,47 @@ public:
         return sumOfLenghts;
     }
 
+};
+
+class Combo : public Shape {
+
+private:
+
+    std::vector<Shape *> shapes;
+
+public:
+
+    Combo(const std::vector<Shape *> & shapes):Shape("Combo") {
+
+        for(unsigned int i = 0; i < shapes.size(); i++) {
+            this->shapes.push_back(shapes[i]);
+        }
+
+    }
+
+    double area() const {
+
+        double total = 0;
+
+        for(unsigned int i = 0; i < shapes.size(); i++) {
+            total += shapes[i]->area();
+        }
+
+        return total;
+
+    }
+
+    double perimeter() const {
+
+        double total = 0;
+
+        for(unsigned int i = 0; i < shapes.size(); i++) {
+            total += shapes[i]->perimeter();
+        }
+
+         return total;
+
+    }
 };
 
 double sumOfArea(const std::vector<Shape *> & shapes) {
