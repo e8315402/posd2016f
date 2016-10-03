@@ -106,9 +106,9 @@ TEST (HW1_6, sumOfPerimetersOfaNumberOfShapes) {
 }
 
 TEST (HW2_1, theLargestArea) {
-    Circle cir(2,7,9.8);
-    Rectangle rect(3,8,17,18);
-    Triangle tri({4,2}, {34,34}, {2,5});
+    Circle cir(2,7,9.8,"middleCir");
+    Rectangle rect(3,8,17,18,"largestRect");
+    Triangle tri({4,2}, {34,34}, {2,5}, "smallTir");
 
     std::vector<Shape *> shapes;
     shapes.push_back(&cir);
@@ -117,7 +117,7 @@ TEST (HW2_1, theLargestArea) {
 
     Shape *largestShape = theLargestArea(shapes);
 
-    CHECK(!((*largestShape).getShapeName().compare("Rectangle")));
+    CHECK(!((*largestShape).getShapeName().compare("largestRect")));
 
     cir.~Circle();
     rect.~Rectangle();
@@ -141,7 +141,7 @@ TEST (HW2_2, sortByDecreasingPerimeter) {
     sortByDecreasingPerimeter(shapes);
 
     DOUBLES_EQUAL(90.654621, shapes[0]->perimeter(), epsilon);
-    DOUBLES_EQUAL(70, shapes[1]->perimeter(), epsilon);
+    DOUBLES_EQUAL(70       , shapes[1]->perimeter(), epsilon);
     DOUBLES_EQUAL(61.575216, shapes[2]->perimeter(), epsilon);
     DOUBLES_EQUAL(22.619467, shapes[3]->perimeter(), epsilon);
 

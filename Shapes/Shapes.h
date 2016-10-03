@@ -45,8 +45,8 @@ private:
 
 public:
 
-    Rectangle(double ulcx, double ulcy, double length, double width):
-        Shape("Rectangle"), x(ulcx), y(ulcy), l(length), w(width){}
+    Rectangle(double ulcx, double ulcy, double length, double width, std::string name = "Rectangle"):
+        Shape(name), x(ulcx), y(ulcy), l(length), w(width){}
 
     double area() const {return l*w;}
 
@@ -62,8 +62,8 @@ private:
 
 public:
 
-    Circle(double centerX,double centerY,double radius):
-        Shape("Circle"), cx(centerX), cy(centerY), r(radius){}
+    Circle(double centerX, double centerY, double radius, std::string name = "Circle"):
+        Shape(name), cx(centerX), cy(centerY), r(radius){}
 
     double area() const {return M_PI*r*r;}
 
@@ -81,8 +81,8 @@ private:
 
 public:
 
-    Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C):
-        Shape("Triangle"), v1(vertex_A), v2(vertex_B), v3(vertex_C) {
+    Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C, std::string name = "Triangle"):
+        Shape(name), v1(vertex_A), v2(vertex_B), v3(vertex_C) {
 
             if(isTriangle(vertex_A, vertex_B, vertex_C) == false)
                 throw "It's not a triangle.";
@@ -134,7 +134,8 @@ private:
 
 public:
 
-    Combo(const std::vector<Shape *> & shapes):Shape("Combo") {
+    Combo(const std::vector<Shape *> & shapes, std::string name = "Combo")
+        :Shape(name) {
 
         for(unsigned int i = 0; i < shapes.size(); i++) {
             this->shapes.push_back(shapes[i]);
@@ -168,24 +169,29 @@ public:
 };
 
 double sumOfArea(const std::vector<Shape *> & shapes) {
+
     double total =0;
 
     for (Shape *shapePoint: shapes)
         total += shapePoint->area();
 
     return total;
+
 }
 
 double sumOfPerimeter(const std::vector<Shape *> & shapes){
+
     double total = 0;
 
     for (Shape *shapePoint: shapes)
         total += shapePoint->perimeter();
 
     return total;
+
 }
 
 Shape* theLargestArea(const std::vector<Shape *> & shapes){
+
     Shape *largestShape = nullptr;
     double largestArea = 0;
 
@@ -196,6 +202,7 @@ Shape* theLargestArea(const std::vector<Shape *> & shapes){
         }
 
     return largestShape;
+
 }
 
 double distanceOfVertexs(const vertex vertex_1, const vertex vertex_2) {
