@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // TEST.H
-//
+// 
 // This file contains the Test class along with the macros which make effective
 // in the harness.
 //
@@ -45,7 +45,7 @@ protected:
 	{ public: testGroup##testName##Test () : Test (#testName "Test") {} \
             void run (TestResult& result_); } \
     testGroup##testName##Instance; \
-	void testGroup##testName##Test::run (TestResult& result_)
+	void testGroup##testName##Test::run (TestResult& result_) 
 
 
 
@@ -56,7 +56,7 @@ protected:
 
 
 #define CHECK_EQUAL(expected,actual)\
-{ if ((expected) != (actual)) { result_.addFailure(Failure(name_, __FILE__, __LINE__, StringFrom(expected), StringFrom(actual))); return; } }
+{ if ((expected) == (actual)) return; result_.addFailure(Failure(name_, __FILE__, __LINE__, StringFrom(expected), StringFrom(actual))); }
 
 
 #define LONGS_EQUAL(expected,actual)\

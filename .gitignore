@@ -3,4 +3,4 @@
 bin/
 obj/
 Shapes/*.layout
-*.layout
+Shapes/*.depend
