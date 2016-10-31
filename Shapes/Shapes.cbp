@@ -33,10 +33,25 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="Builder.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Media.cpp">
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="Media.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="Shape.cpp">
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="Shapes.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Visitor.cpp">
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="Visitor.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="main.cpp" />

@@ -2,14 +2,142 @@
 #define UTSHAPES_H_INCLUDED
 
 #include "..\cppunitlite\TestHarness.h"
+
 #include "Shapes.h"
 #include "Media.h"
+#include "Builder.h"
+#include "Visitor.h"
 
 #include <vector>
 #include <iostream>
 #include <iomanip>
 
 const double epsilon = 0.000001;
+
+
+TEST (1_ShapeMediaBuilder, HW4){
+
+    Circle c0(0,0,5);
+    ShapeMediaBuilder::getInstance()->buildShapeMedia(&c0);
+    Media * ma = ShapeMediaBuilder::getInstance()->getMedia();
+
+    DOUBLES_EQUAL(31.415927, ma->perimeter(),epsilon);
+    DOUBLES_EQUAL(78.539816, ma->area(), epsilon);
+
+    ma->~Media();
+}
+
+TEST (2_BuildTheHouse, HW4){
+
+    ShapeMediaBuilder * smBuilder = ShapeMediaBuilder::getInstance();
+    ComboMediaBuilder * cmBuilder = ComboMediaBuilder::getInstance();
+
+    DescriptionVisitor dv;
+    AreaVisitor av;
+
+    Media * maTamp = nullptr;
+
+    Circle c1(12,5,2);
+    Rectangle r1(10,0,15,5);
+    Rectangle r2(0,0,25,20);
+    Triangle t1({0,20}, {16,32}, {25,20});
+
+    smBuilder->buildShapeMedia(&c1);
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r1);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r2);
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&t1);
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    maTamp = cmBuilder->getMedia();
+    maTamp->accept(&dv);
+
+    std::string ans("Combo(Combo(Combo(Circle(12 5 2)Rectangle(10 0 15 5)) Rectangle(0 0 25 20)) Triangle(0 20 16 32 25 20)) ");
+    CHECK(!(ans.compare(dv.getDescription())));
+
+}
+
+TEST (3_BuildTextMedia, HW4){
+
+    TextMediaBuilder * txBuilder = TextMediaBuilder::getInstance();
+
+    txBuilder->buildTextMedia(Rectangle(0,0,5,5), std::string("Text Box"));
+
+    TextMedia * txTamp = (TextMedia *)txBuilder->getMedia();
+
+    DOUBLES_EQUAL(20.0, txTamp->perimeter(), epsilon);
+    CHECK(!(txTamp->getText().compare(std::string("Text Box"))));
+
+}
+
+TEST(4_RemoveShapeMedia, HW4) {
+
+    ShapeMediaBuilder * smBuilder = ShapeMediaBuilder::getInstance();
+    ComboMediaBuilder * cmBuilder = ComboMediaBuilder::getInstance();
+
+    DescriptionVisitor dv;
+    AreaVisitor av;
+
+    Media * maTamp = nullptr;
+    Media * toBeRemoved = nullptr;
+
+    Circle c1(12,5,2);
+    Rectangle r1(10,0,15,5);
+    Rectangle r2(0,0,25,20);
+    Triangle t1({0,20}, {16,32}, {25,20});
+
+    smBuilder->buildShapeMedia(&c1);
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r1);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r2);
+    toBeRemoved = smBuilder->getMedia();
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(toBeRemoved);
+
+    smBuilder->buildShapeMedia(&t1);
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    maTamp = cmBuilder->getMedia();
+    maTamp->accept(&dv);
+
+    std::string ans("Combo(Combo(Combo(Circle(12 5 2)Rectangle(10 0 15 5)) Rectangle(0 0 25 20)) Triangle(0 20 16 32 25 20)) ");
+    CHECK(!(ans.compare(dv.getDescription())));
+
+    ((ComboMedia *)maTamp)->removeMedia(toBeRemoved);
+    maTamp->accept(&dv);
+
+    ans = std::string("Combo(Combo(Combo(Circle(12 5 2)Rectangle(10 0 15 5)) ) Triangle(0 20 16 32 25 20)) ");
+    CHECK(!(ans.compare(dv.getDescription())));
+
+}
+
+
+/**< previous test */
 
 TEST (1_perimeterOfCircle, HW1) {
 
@@ -126,33 +254,6 @@ TEST (1_theLargestArea, HW2) {
     cir.~Circle();
     rect.~Rectangle();
     tri.~Triangle();
-
-}
-
-TEST (2_sortByDecreasingPerimeter, HW2) {
-
-    Circle cir_1(2,7,9.8);
-    Circle cir_2(5,4,3.6);
-    Rectangle rect_1(3,8,17,18);
-    Triangle tri_1({4,2}, {34,34}, {2,5});
-
-    std::vector<Shape *> shapes;
-    shapes.push_back(&cir_1);
-    shapes.push_back(&cir_2);
-    shapes.push_back(&rect_1);
-    shapes.push_back(&tri_1);
-
-    sortByDecreasingPerimeter(shapes);
-
-    DOUBLES_EQUAL(90.654621, shapes[0]->perimeter(), epsilon);
-    DOUBLES_EQUAL(70       , shapes[1]->perimeter(), epsilon);
-    DOUBLES_EQUAL(61.575216, shapes[2]->perimeter(), epsilon);
-    DOUBLES_EQUAL(22.619467, shapes[3]->perimeter(), epsilon);
-
-    cir_1.~Circle();
-    cir_2.~Circle();
-    rect_1.~Rectangle();
-    tri_1.~Triangle();
 
 }
 
@@ -294,43 +395,6 @@ TEST (3_visitMediaForPerimeter, HW3) {
 
 }
 
+
 #endif // UTSHAPES_H_INCLUDED
 
-
-//TEST (3_sumOfPerimetersOfMultiShape, HW2) {
-//
-//    Circle cSmall(2,1,1);
-//    Rectangle rTall(1,10,2,8);
-//
-//    std::vector<Shape *> shapes;
-//    shapes.push_back(&cSmall);
-//    shapes.push_back(&rTall);
-//
-//    Combo comboExclamation(shapes);
-//
-//    DOUBLES_EQUAL(26.2831853, comboExclamation.perimeter(), epsilon);
-//
-//    comboExclamation.~Combo();
-//    cSmall.~Circle();
-//    rTall.~Rectangle();
-//
-//}
-
-//TEST (4_sumOfAreasOfMultiShape, HW2) {
-//
-//    Circle cSmall(2,1,1);
-//    Rectangle rTall(1,10,2,8);
-//
-//    std::vector<Shape *> shapes;
-//    shapes.push_back(&cSmall);
-//    shapes.push_back(&rTall);
-//
-//    Combo comboExclamation(shapes);
-//
-//    DOUBLES_EQUAL(19.1415927, comboExclamation.area(), epsilon);
-//
-//    comboExclamation.~Combo();
-//    cSmall.~Circle();
-//    rTall.~Rectangle();
-//
-//}
