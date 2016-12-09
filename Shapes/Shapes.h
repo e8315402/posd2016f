@@ -49,7 +49,7 @@ private:
 
 public:
 
-    Rectangle(double ulcx, double ulcy, double length, double width, std::string name = "Rectangle"):
+    Rectangle(double ulcx, double ulcy, double length, double width, std::string name = "r"):
         Shape(name), x(ulcx), y(ulcy), l(length), w(width){}
 
     double area() const {return l*w;}
@@ -72,7 +72,7 @@ private:
 
 public:
 
-    Circle(double centerX, double centerY, double radius, std::string name = "Circle"):
+    Circle(double centerX, double centerY, double radius, std::string name = "c"):
         Shape(name), cx(centerX), cy(centerY), r(radius){}
 
     double area() const {return M_PI*r*r;}
@@ -97,7 +97,7 @@ private:
 
 public:
 
-    Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C, std::string name = "Triangle"):
+    Triangle(vertex vertex_A, vertex vertex_B, vertex vertex_C, std::string name = "t"):
         Shape(name), v1(vertex_A), v2(vertex_B), v3(vertex_C) {
 
             if(isTriangle(vertex_A, vertex_B, vertex_C) == false)

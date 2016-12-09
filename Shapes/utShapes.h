@@ -7,6 +7,7 @@
 #include "Media.h"
 #include "Builder.h"
 #include "Visitor.h"
+#include "MyDocument.h"
 
 #include <vector>
 #include <iostream>
@@ -15,129 +16,8 @@
 const double epsilon = 0.000001;
 
 
-TEST (1_ShapeMediaBuilder, HW4){
-
-    Circle c0(0,0,5);
-    ShapeMediaBuilder::getInstance()->buildShapeMedia(&c0);
-    Media * ma = ShapeMediaBuilder::getInstance()->getMedia();
-
-    DOUBLES_EQUAL(31.415927, ma->perimeter(),epsilon);
-    DOUBLES_EQUAL(78.539816, ma->area(), epsilon);
-
-    ma->~Media();
-}
-
-TEST (2_BuildTheHouse, HW4){
-
-    ShapeMediaBuilder * smBuilder = ShapeMediaBuilder::getInstance();
-    ComboMediaBuilder * cmBuilder = ComboMediaBuilder::getInstance();
-
-    DescriptionVisitor dv;
-    AreaVisitor av;
-
-    Media * maTamp = nullptr;
-
-    Circle c1(12,5,2);
-    Rectangle r1(10,0,15,5);
-    Rectangle r2(0,0,25,20);
-    Triangle t1({0,20}, {16,32}, {25,20});
-
-    smBuilder->buildShapeMedia(&c1);
-    cmBuilder->buildComboMedia();
-    cmBuilder->addMedia(smBuilder->getMedia());
-
-    smBuilder->buildShapeMedia(&r1);
-    cmBuilder->addMedia(smBuilder->getMedia());
-
-    smBuilder->buildShapeMedia(&r2);
-
-    maTamp = cmBuilder->getMedia();
-    cmBuilder->buildComboMedia();
-    cmBuilder->addMedia(maTamp);
-    cmBuilder->addMedia(smBuilder->getMedia());
-
-    smBuilder->buildShapeMedia(&t1);
-
-    maTamp = cmBuilder->getMedia();
-    cmBuilder->buildComboMedia();
-    cmBuilder->addMedia(maTamp);
-    cmBuilder->addMedia(smBuilder->getMedia());
-
-    maTamp = cmBuilder->getMedia();
-    maTamp->accept(&dv);
-
-    std::string ans("Combo(Combo(Combo(Circle(12 5 2)Rectangle(10 0 15 5)) Rectangle(0 0 25 20)) Triangle(0 20 16 32 25 20)) ");
-    CHECK(!(ans.compare(dv.getDescription())));
-
-}
-
-TEST (3_BuildTextMedia, HW4){
-
-    TextMediaBuilder * txBuilder = TextMediaBuilder::getInstance();
-
-    txBuilder->buildTextMedia(Rectangle(0,0,5,5), std::string("Text Box"));
-
-    TextMedia * txTamp = (TextMedia *)txBuilder->getMedia();
-
-    DOUBLES_EQUAL(20.0, txTamp->perimeter(), epsilon);
-    CHECK(!(txTamp->getText().compare(std::string("Text Box"))));
-
-}
-
-TEST(4_RemoveShapeMedia, HW4) {
-
-    ShapeMediaBuilder * smBuilder = ShapeMediaBuilder::getInstance();
-    ComboMediaBuilder * cmBuilder = ComboMediaBuilder::getInstance();
-
-    DescriptionVisitor dv;
-    AreaVisitor av;
-
-    Media * maTamp = nullptr;
-    Media * toBeRemoved = nullptr;
-
-    Circle c1(12,5,2);
-    Rectangle r1(10,0,15,5);
-    Rectangle r2(0,0,25,20);
-    Triangle t1({0,20}, {16,32}, {25,20});
-
-    smBuilder->buildShapeMedia(&c1);
-    cmBuilder->buildComboMedia();
-    cmBuilder->addMedia(smBuilder->getMedia());
-
-    smBuilder->buildShapeMedia(&r1);
-    cmBuilder->addMedia(smBuilder->getMedia());
-
-    smBuilder->buildShapeMedia(&r2);
-    toBeRemoved = smBuilder->getMedia();
-
-    maTamp = cmBuilder->getMedia();
-    cmBuilder->buildComboMedia();
-    cmBuilder->addMedia(maTamp);
-    cmBuilder->addMedia(toBeRemoved);
-
-    smBuilder->buildShapeMedia(&t1);
-
-    maTamp = cmBuilder->getMedia();
-    cmBuilder->buildComboMedia();
-    cmBuilder->addMedia(maTamp);
-    cmBuilder->addMedia(smBuilder->getMedia());
-
-    maTamp = cmBuilder->getMedia();
-    maTamp->accept(&dv);
-
-    std::string ans("Combo(Combo(Combo(Circle(12 5 2)Rectangle(10 0 15 5)) Rectangle(0 0 25 20)) Triangle(0 20 16 32 25 20)) ");
-    CHECK(!(ans.compare(dv.getDescription())));
-
-    ((ComboMedia *)maTamp)->removeMedia(toBeRemoved);
-    maTamp->accept(&dv);
-
-    ans = std::string("Combo(Combo(Combo(Circle(12 5 2)Rectangle(10 0 15 5)) ) Triangle(0 20 16 32 25 20)) ");
-    CHECK(!(ans.compare(dv.getDescription())));
-
-}
-
-
 /**< previous test */
+
 
 TEST (1_perimeterOfCircle, HW1) {
 
@@ -394,6 +274,175 @@ TEST (3_visitMediaForPerimeter, HW3) {
     pv.~PerimeterVisitor();
 
 }
+
+TEST (1_ShapeMediaBuilder, HW4){
+
+    Circle c0(0,0,5);
+    ShapeMediaBuilder::getInstance()->buildShapeMedia(&c0);
+    Media * ma = ShapeMediaBuilder::getInstance()->getMedia();
+
+    DOUBLES_EQUAL(31.415927, ma->perimeter(),epsilon);
+    DOUBLES_EQUAL(78.539816, ma->area(), epsilon);
+
+    ma->~Media();
+}
+
+TEST (2_BuildTheHouse, HW4){
+
+    ShapeMediaBuilder * smBuilder = ShapeMediaBuilder::getInstance();
+    ComboMediaBuilder * cmBuilder = ComboMediaBuilder::getInstance();
+
+    DescriptionVisitor dv;
+    AreaVisitor av;
+
+    Media * maTamp = nullptr;
+
+    Circle c1(12,5,2);
+    Rectangle r1(10,0,15,5);
+    Rectangle r2(0,0,25,20);
+    Triangle t1({0,20}, {16,32}, {25,20});
+
+    smBuilder->buildShapeMedia(&c1);
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r1);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r2);
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&t1);
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    maTamp = cmBuilder->getMedia();
+    maTamp->accept(&dv);
+
+    std::string ans("combo(combo(combo(c(12 5 2)r(10 0 15 5)) r(0 0 25 20)) t(0 20 16 32 25 20)) ");
+    CHECK(!(ans.compare(dv.getDescription())));
+
+}
+
+TEST (3_BuildTextMedia, HW4){
+
+    TextMediaBuilder * txBuilder = TextMediaBuilder::getInstance();
+
+    txBuilder->buildTextMedia(Rectangle(0,0,5,5), std::string("Text Box"));
+
+    TextMedia * txTamp = (TextMedia *)txBuilder->getMedia();
+
+    DOUBLES_EQUAL(20.0, txTamp->perimeter(), epsilon);
+    CHECK(!(txTamp->getText().compare(std::string("Text Box"))));
+
+}
+
+TEST(4_RemoveShapeMedia, HW4) {
+
+    ShapeMediaBuilder * smBuilder = ShapeMediaBuilder::getInstance();
+    ComboMediaBuilder * cmBuilder = ComboMediaBuilder::getInstance();
+
+    DescriptionVisitor dv;
+    AreaVisitor av;
+
+    Media * maTamp = nullptr;
+    Media * toBeRemoved = nullptr;
+
+    Circle c1(12,5,2);
+    Rectangle r1(10,0,15,5);
+    Rectangle r2(0,0,25,20);
+    Triangle t1({0,20}, {16,32}, {25,20});
+
+    smBuilder->buildShapeMedia(&c1);
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r1);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    smBuilder->buildShapeMedia(&r2);
+    toBeRemoved = smBuilder->getMedia();
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(toBeRemoved);
+
+    smBuilder->buildShapeMedia(&t1);
+
+    maTamp = cmBuilder->getMedia();
+    cmBuilder->buildComboMedia();
+    cmBuilder->addMedia(maTamp);
+    cmBuilder->addMedia(smBuilder->getMedia());
+
+    maTamp = cmBuilder->getMedia();
+    maTamp->accept(&dv);
+
+    std::string ans("combo(combo(combo(c(12 5 2)r(10 0 15 5)) r(0 0 25 20)) t(0 20 16 32 25 20)) ");
+    CHECK(!(ans.compare(dv.getDescription())));
+
+    ((ComboMedia *)maTamp)->removeMedia(toBeRemoved);
+    maTamp->accept(&dv);
+
+    ans = std::string("combo(combo(combo(c(12 5 2)r(10 0 15 5)) ) t(0 20 16 32 25 20)) ");
+    CHECK(!(ans.compare(dv.getDescription())));
+
+}
+
+//
+//TEST (1_readFileFromTXT, HW5) {
+//
+//    MyDocument myShape;
+//
+//    try {
+//        std::string content = myShape.openDocument(std::string("./txt/myShape.txt"));
+//
+//        CHECK(!(content.compare(std::string("combo(r(0 0 3 2) c(0 0 5) combo(r(0 0 5 4) c(0 0 10) )combo(r(0 1 8 7) c(0 1 10) ))"))));
+//
+//    } catch (std::string msg) {
+//        FAIL(msg.c_str());
+//    }
+//
+//    myShape.~MyDocument();
+//
+//}
+
+//TEST (2_buildMediaByDirector, HW5) {
+//
+//    Document myShape;
+//    MediaDirector mediaDirector;
+//
+//    std::stack<Media *> mediaStack;
+//
+//    mediaDirector.setMediaStack(&mediaStack);
+//
+//    myShape.openDocument(std::string("./txt/myShape.txt"));
+//    std::string content = myShape.readFile();
+//
+//    mediaDirector.concrete(content);
+//
+//    Media *mp;
+//    DescriptionVisitor dv;
+//
+//    mp = mediaStack.top();
+//    mediaStack.pop();
+//
+//    mp->accept(&dv);
+//
+//    std::string strLine = dv.getDescription();
+//
+//    CHECK(strLine == "combo(r(0 0 3 2)c(0 0 5)combo(r(0 0 5 4)c(0 0 10)) combo(r(0 1 8 7)c(0 1 10)) ) ");
+//
+//    myShape.~Document();
+//    dv.~DescriptionVisitor();
+//}
 
 
 #endif // UTSHAPES_H_INCLUDED

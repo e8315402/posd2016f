@@ -1,10 +1,53 @@
 # depslib dependency file v1.0
-1474703446 source:e:\projects\posd2016f\shapes\main.cpp
+1481115854 source:e:\projects\posd2016f\shapes\builder.cpp
+	<sstream>
+	<iostream>
+	<string>
+	"Builder.h"
+
+1480421857 e:\projects\posd2016f\shapes\builder.h
+	<stack>
+	"Media.h"
+
+1478836317 e:\projects\posd2016f\shapes\media.h
+	"Shapes.h"
+	"Visitor.h"
+
+1481024332 e:\projects\posd2016f\shapes\shapes.h
+	<vector>
+	<string>
+	<sstream>
+	<math.h>
+
+1477918149 e:\projects\posd2016f\shapes\visitor.h
+	"Media.h"
+
+1481111229 source:e:\projects\posd2016f\shapes\document.cpp
+	"Document.h"
+
+1481100133 e:\projects\posd2016f\shapes\document.h
+	<string>
+	<fstream>
+	<sstream>
+	<iostream>
+	<sys/stat.h>
+
+1481029064 source:e:\projects\posd2016f\shapes\media.cpp
+	"Media.h"
+	<iostream>
+
+1477898227 source:e:\projects\posd2016f\shapes\shape.cpp
+	"Shapes.h"
+
+1481024395 source:e:\projects\posd2016f\shapes\visitor.cpp
+	"Visitor.h"
+
+1481165818 source:e:\projects\posd2016f\shapes\main.cpp
 	"..\cppunitlite\TestHarness.h"
 	"utShapes.h"
-	<string>
-	<cstdio>
 	<iostream>
+	<map>
+	<queue>
 
 1476425198 e:\projects\posd2016f\cppunitlite\testharness.h
 	"Test.h"
@@ -25,18 +68,20 @@
 
 1476425198 e:\projects\posd2016f\cppunitlite\testregistry.h
 
-1476461651 e:\projects\posd2016f\shapes\utshapes.h
+1481101287 e:\projects\posd2016f\shapes\utshapes.h
 	"..\cppunitlite\TestHarness.h"
 	"Shapes.h"
 	"Media.h"
+	"Builder.h"
+	"Visitor.h"
+	"MyDocument.h"
 	<vector>
 	<iostream>
 	<iomanip>
 
-1476461696 e:\projects\posd2016f\shapes\shapes.h
-	<vector>
+1481099069 e:\projects\posd2016f\shapes\mydocument.h
 	<string>
-
-1476461622 e:\projects\posd2016f\shapes\media.h
-	"Shapes.h"
+	<iostream>
+	<fstream>
+	"Document.h"
 

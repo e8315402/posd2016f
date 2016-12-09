@@ -1,13 +1,25 @@
 #ifndef BUILDER_H_INCLUDED
 #define BUILDER_H_INCLUDED
 
+#include <stack>
+
 #include "Media.h"
+
+class MediaDirector {
+
+public :
+    void setMediaStack(std::stack<Media *> *mediaStack);
+	void concrete(std::string content);
+
+private :
+    std::stack<Media *> *mediaStack = nullptr;
+
+};
 
 class MediaBuilder
 {
  public:
-//    virtual void buildMedia(Media * ma) = 0;
-//    virtual void buildShapeMedia(Shape * s) = 0;
+
     virtual Media *getMedia() = 0;
 
 };
@@ -36,15 +48,7 @@ public:
 
 };
 
-ShapeMediaBuilder * ShapeMediaBuilder::instance = 0;
 
-ShapeMediaBuilder::ShapeMediaBuilder(){}
-
-ShapeMediaBuilder * ShapeMediaBuilder::getInstance() {
-    if(!instance)
-        instance = new ShapeMediaBuilder();
-    return instance;
-}
 
 
 class ComboMediaBuilder : public MediaBuilder {
@@ -64,7 +68,6 @@ public:
 
     void addMedia(Media * ma) {
         if(!cm) throw std::string("ComboMedia point to null.");
-
         cm->add(ma);
     }
 
@@ -73,15 +76,6 @@ public:
     }
 
 };
-ComboMediaBuilder * ComboMediaBuilder::instance = 0;
-
-ComboMediaBuilder::ComboMediaBuilder(){}
-
-ComboMediaBuilder * ComboMediaBuilder::getInstance() {
-    if (!instance)
-        instance = new ComboMediaBuilder();
-    return instance;
-}
 
 
 class TextMediaBuilder : public MediaBuilder {
@@ -107,14 +101,6 @@ public:
 
 };
 
-TextMediaBuilder * TextMediaBuilder::instance = 0;
 
-TextMediaBuilder::TextMediaBuilder(){}
-
-TextMediaBuilder * TextMediaBuilder::getInstance(){
-    if(!instance)
-        instance = new TextMediaBuilder();
-    return instance;
-}
 
 #endif // BUILDER_H_INCLUDED

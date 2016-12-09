@@ -43,7 +43,6 @@ void TextMedia::accept(MediaVisitor * mv){
 
 /**< ComboMedia */
 ComboMedia::ComboMedia() {
-
     std::vector<Media *> instance;
     medias = instance;
 }

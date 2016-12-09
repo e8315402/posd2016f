@@ -53,7 +53,7 @@ void DescriptionVisitor::ShapeMediaVisitor(ShapeMedia * sm){
 
 void DescriptionVisitor::ComboMediaVisitor(ComboMedia * cm){
 
-    desc += std::string("Combo(");
+    desc += std::string("combo(");
 
     for (Media * mp : cm->getMedias())
         mp->accept(this);
