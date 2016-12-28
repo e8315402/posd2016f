@@ -36,16 +36,9 @@ private:
 public:
     static ShapeMediaBuilder * getInstance();
 
-    void buildShapeMedia(Shape * shape) {
-        sm = new ShapeMedia(shape);
-    }
+    void buildShapeMedia(Shape * shape);
 
-    Media * getMedia() {
-        Media * ma = sm;
-        sm = nullptr;
-        return ma;
-    }
-
+    Media * getMedia();
 };
 
 
@@ -62,18 +55,11 @@ public:
 
     static ComboMediaBuilder * getInstance();
 
-    void buildComboMedia() {
-        cm = new ComboMedia();
-    }
+    void buildComboMedia();
 
-    void addMedia(Media * ma) {
-        if(!cm) throw std::string("ComboMedia point to null.");
-        cm->add(ma);
-    }
+    void addMedia(Media * ma);
 
-    Media * getMedia() {
-        return cm;
-    }
+    Media * getMedia();
 
 };
 
@@ -91,16 +77,10 @@ public:
 
     static TextMediaBuilder * getInstance();
 
-    void buildTextMedia(Rectangle boundingBox, std::string text) {
-        tm = new TextMedia(boundingBox, text);
-    }
+    void buildTextMedia(Rectangle boundingBox, std::string text);
 
-    Media * getMedia() {
-        return tm;
-    }
+    Media * getMedia();
 
 };
-
-
 
 #endif // BUILDER_H_INCLUDED

@@ -1,30 +1,60 @@
 #include "..\cppunitlite\TestHarness.h"
 #include "utShapes.h"
+#include "utils.h"
 
 #include <iostream>
 #include <map>
 #include <queue>
+#include <thread>
+#include <chrono>
+#include <windows.h>
 
-void def(std::string objectName, std::string object);
-void add(std::string objectName, std::string object);
-void deleted(std::string objectName, std::string secondToken, std::string object);
+#define HIGH_ORDER_BIT 0x8000
+#define VK_Z 0x5A
+#define VK_Y 0x59
+
+void def(CommandManager & cmdM, std::string objectName, std::string object);
+void add(CommandManager & cmdM, std::string objectName, std::string object);
+void deleted(CommandManager & cmdM, std::string objectName, std::string secondToken, std::string object);
 void save(std::string objectName, std::string secondToken, std::string object);
 void load(std::string objectName);
-
 void getMethod(std::string firstToken);
-void reOrganizeContent(std::string &content, std::string const oldStr, std::string const newStr);
-Shape * createShape(std::string const token);
+
 void show();
-void printAllObject(std::stringstream & ss, ComboMedia * cmp);
-std::string getKeyByValue (Media * mValue);
 void preOrderTraversal(std::queue<Media *> * mediaQueue, ComboMedia * cmp);
+Shape * createShape(std::string const token);
 
 std::map<std::string, Media *> mediaMap;
 
+inline bool isKeyDown(int VirtualCode) {
+    return (GetKeyState(VirtualCode) & HIGH_ORDER_BIT);
+}
+
+void keyevent(CommandManager & cmdM) {
+
+    while(1) {
+        if(isKeyDown(VK_CONTROL)) {
+            //Control has been pressed
+            if(isKeyDown(VK_Z)) {
+                cmdM.undoCMD();
+                std::cout << "\b\bUndo\n:- ";
+                std::cin.clear();
+            }
+
+            if(isKeyDown(VK_Y)) {
+                cmdM.redoCMD();
+                std::cout << "\b\bRedo\n:- ";
+                std::cin.clear();
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+}
+
 int main()
 {
-    //TestResult tr;
-    //TestRegistry::runAllTests(tr);
+//    TestResult tr;
 
     std::stringstream ss;
 
@@ -32,13 +62,23 @@ int main()
 
     std::string firstToken, objectName, secondToken, object;
 
+    CommandManager cmdM;
+
+    std::thread t1(keyevent, std::ref(cmdM));
+
     while(1) {
 
         std::cout << ":- ";
 
         getline(std::cin, commandString);
 
-        if(commandString == "exit") break;
+        //prevent from loop-hell
+        if(commandString.empty()) std::cin.clear();
+
+        if(commandString == "exit") {
+            t1.detach();
+            break;
+        }
 
         if(commandString == "") continue;
 
@@ -47,19 +87,24 @@ int main()
             continue;
         }
 
+//        if(commandString == "test") {
+//            TestRegistry::runAllTests(tr);
+//            continue;
+//        }
+
         ss << commandString;
 
         ss >> firstToken >> objectName >> secondToken >> object;
 
-        if(firstToken == "def") def(objectName, object);
+        if(firstToken == "def") def(cmdM, objectName, object);
 
-        else if(firstToken == "add") add(objectName, object);
+        else if(firstToken == "add") add(cmdM, objectName, object);
 
-        else if(firstToken == "delete") deleted(objectName, secondToken, object);
+        else if(firstToken == "delete") deleted(cmdM, objectName, secondToken, object);
 
         else if(firstToken == "save") save(objectName, secondToken, object);
 
-        else if(firstToken == "load")  load(objectName);
+        else if(firstToken == "load") load(objectName);
 
         else getMethod(firstToken);
 
@@ -76,57 +121,25 @@ int main()
     return 0;
 }
 
+void def(CommandManager & cmdM, std::string objectName, std::string object) {
 
-void def(std::string objectName, std::string object){
+//    DefCommand * defCMD = ;
+
+    cmdM.executeCMD(new DefCommand(mediaMap, objectName, object));
 
     std::cout << ">> " << object << std::endl;
 
-    if(object.at(0) == 'c') {
-        ComboMediaBuilder::getInstance()->buildComboMedia();
-
-        unsigned int preBracketsIndex = object.find("{");
-        unsigned int postBracketsIndex = object.find("}") - 1;
-        std::string subObjectsNameString = object.substr(preBracketsIndex + 1, postBracketsIndex - preBracketsIndex);
-
-        std::stringstream ss(subObjectsNameString);
-        std::string subObjectName;
-
-        while(getline(ss, subObjectName, ',')){
-            ComboMediaBuilder::getInstance()->addMedia(mediaMap[subObjectName]);
-        }
-
-        mediaMap[objectName] = ComboMediaBuilder::getInstance()->getMedia();
-
-    } else {
-        // "Circle(1,1,2)" to "c(1 1 2)"
-        reOrganizeContent(object, ",", " ");
-        switch (object.at(0))
-        {
-            case 'C':
-                reOrganizeContent(object, "Circle", "c");
-                break;
-            case 'R':
-                reOrganizeContent(object, "Rectangle", "r");
-                break;
-            case 'T':
-                reOrganizeContent(object, "Triangle", "t");
-                break;
-        }
-
-        ShapeMediaBuilder::getInstance()->buildShapeMedia(createShape(object));
-
-        mediaMap[objectName] = ShapeMediaBuilder::getInstance()->getMedia();
-    }
-
 }
 
-void add(std::string objectName, std::string object){
+void add(CommandManager & cmdM, std::string objectName, std::string object) {
+
+//    AddCommand * addCMD = ;
+
+    cmdM.executeCMD(new AddCommand(mediaMap, objectName, object));
 
     ComboMedia * cmp = (ComboMedia *)mediaMap[object];
-    cmp->add( mediaMap[objectName] );
-
     std::stringstream ss;
-    printAllObject(ss, cmp);
+    printAllObject(mediaMap, ss, cmp);
 
     DescriptionVisitor dv;
     cmp->accept(&dv);
@@ -136,29 +149,14 @@ void add(std::string objectName, std::string object){
 
 }
 
-void deleted(std::string objectName, std::string secondToken, std::string object){
+void deleted(CommandManager & cmdM, std::string objectName, std::string secondToken, std::string object) {
 
-    if (secondToken == "from") {
+//    DeleteCommand * delCMD = ;
 
-        ((ComboMedia *)mediaMap[object])->removeMedia(mediaMap[objectName]);
+    cmdM.executeCMD(new DeleteCommand(mediaMap, objectName, secondToken, object));
 
-    } else {
-
-        std::map<std::string, Media *>::iterator iter;
-
-        for (iter = mediaMap.begin(); iter != mediaMap.end(); iter++) {
-
-            iter->second->accept(MessageVisitor::getInstance());
-
-            if (MessageVisitor::getInstance()->getMessage() == "ComboMedia")
-                ((ComboMedia *)iter->second)->removeMedia(mediaMap[objectName]);
-        }
-
-        iter = mediaMap.find(objectName);
-        mediaMap.erase(iter);
-
-    }
 }
+
 
 void save(std::string objectName, std::string secondToken, std::string object){
 
@@ -182,13 +180,13 @@ void save(std::string objectName, std::string secondToken, std::string object){
 
         std::stringstream ss;
 
-        printAllObject(ss, (ComboMedia *)mediaMap[objectName]);
+        printAllObject(mediaMap, ss, (ComboMedia *)mediaMap[objectName]);
 
         argNameString = ss.str();
 
     } else {
 
-        argNameString = getKeyByValue(mediaMap[objectName]);
+        argNameString = getKeyByValue(mediaMap, mediaMap[objectName]);
 
     }
 
@@ -280,7 +278,10 @@ void getMethod(std::string firstToken){
 
 void show() {
 
-    if(mediaMap.size() == 0) return;
+    if(mediaMap.size() == 0) {
+        std::cout << "mediaMap Size: 0" << std::endl;
+        return;
+    }
 
     DescriptionVisitor dv;
     std::stringstream ss;
@@ -291,7 +292,7 @@ void show() {
         iter->second->accept(MessageVisitor::getInstance());
         if (MessageVisitor::getInstance()->getMessage() == "ComboMedia"){
 
-            printAllObject(ss, (ComboMedia*)iter->second);
+            printAllObject(mediaMap, ss, (ComboMedia*)iter->second);
 
             std::cout << iter->first << " = " << ss.str() << " = ";
 
@@ -306,17 +307,6 @@ void show() {
         }
     }
 
-}
-
-std::string getKeyByValue(Media * mValue) {
-
-    for (std::map<std::string, Media *>::iterator iter = mediaMap.begin(); iter != mediaMap.end(); iter++) {
-
-        if(iter->second == mValue) return iter->first;
-
-    }
-
-    return "no found";
 }
 
 void preOrderTraversal(std::queue<Media *> * mediaQueue, ComboMedia * cmp){
@@ -335,19 +325,3 @@ void preOrderTraversal(std::queue<Media *> * mediaQueue, ComboMedia * cmp){
 
 }
 
-void printAllObject(std::stringstream & ss, ComboMedia * cmp){
-
-    ss << getKeyByValue(cmp) << "{";
-
-    for(Media * mp : cmp->getMedias()){
-
-        mp->accept(MessageVisitor::getInstance());
-
-        if(MessageVisitor::getInstance()->getMessage() == "ShapeMedia")
-            ss << getKeyByValue(mp) << " " ;
-
-        else printAllObject(ss, (ComboMedia *)mp);
-    }
-
-    ss << "}";
-}

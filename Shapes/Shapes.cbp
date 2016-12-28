@@ -28,43 +28,91 @@
 					<Add library="../cppunitlite/libCppUnitLite.a" />
 				</Linker>
 			</Target>
+			<Target title="test_Debug">
+				<Option output="bin/Debug/Shapes" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+			</Target>
+			<Target title="test_Release">
+				<Option output="Shapes" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="AddCommand.cpp">
+			<Option target="Debug" />
+			<Option target="test_Debug" />
+		</Unit>
 		<Unit filename="Builder.cpp">
 			<Option target="Debug" />
+			<Option target="test_Debug" />
 		</Unit>
 		<Unit filename="Builder.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="Command.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="CommandManager.cpp">
+			<Option target="Debug" />
+			<Option target="test_Debug" />
+		</Unit>
+		<Unit filename="DefCommand.cpp">
+			<Option target="Debug" />
+			<Option target="test_Debug" />
+		</Unit>
+		<Unit filename="DeleteCommand.cpp">
+			<Option target="test_Debug" />
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="Document.cpp">
 			<Option target="Debug" />
+			<Option target="test_Debug" />
 		</Unit>
 		<Unit filename="Document.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="Media.cpp">
 			<Option target="Debug" />
+			<Option target="test_Debug" />
 		</Unit>
 		<Unit filename="Media.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="Shape.cpp">
 			<Option target="Debug" />
+			<Option target="test_Debug" />
 		</Unit>
 		<Unit filename="Shapes.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="Visitor.cpp">
 			<Option target="Debug" />
+			<Option target="test_Debug" />
 		</Unit>
 		<Unit filename="Visitor.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="main.cpp" />
+		<Unit filename="main.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="test.main.cpp">
+			<Option target="test_Debug" />
+		</Unit>
 		<Unit filename="utShapes.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="utils.cpp">
+			<Option target="Debug" />
+			<Option target="test_Debug" />
+		</Unit>
+		<Unit filename="utils.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Extensions>

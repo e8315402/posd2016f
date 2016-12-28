@@ -8,6 +8,8 @@
 #include "Builder.h"
 #include "Visitor.h"
 #include "MyDocument.h"
+#include "Command.h"
+#include "utils.h"
 
 #include <vector>
 #include <iostream>
@@ -15,6 +17,405 @@
 
 const double epsilon = 0.000001;
 
+bool mapCompare (std::map<std::string, Media *> leftOne, std::map<std::string, Media *> rightOne) {
+
+    if(leftOne.size() != rightOne.size()) return false;
+
+    DescriptionVisitor dv;
+    std::string description_leftOne;
+    std::string description_rightOne;
+
+    std::map<std::string, Media *>::iterator it_leftOne = leftOne.begin();
+    std::map<std::string, Media *>::iterator it_rightOne = rightOne.begin();
+
+    while(1) {
+
+        if( it_leftOne == leftOne.end() ) break;
+
+        if( it_leftOne->first != it_rightOne->first) return false;
+
+        it_leftOne->second->accept(&dv);
+        description_leftOne = dv.getDescription();
+
+        it_rightOne->second->accept(&dv);
+        description_rightOne = dv.getDescription();
+
+        if(description_leftOne.compare(description_rightOne)) return false;
+
+        it_leftOne++; it_rightOne++;
+
+    }
+
+    return true;
+}
+
+
+//void show(std::map<std::string, Media *> & mediaMap) {
+//
+//    if(mediaMap.size() == 0) {
+//        std::cout << "mediaMap Size: 0" << std::endl;
+//        return;
+//    }
+//
+//    DescriptionVisitor dv;
+//    std::stringstream ss;
+//
+//    std::cout << "[Show]" << std::endl;
+//
+//    for (std::map<std::string, Media *>::iterator iter = mediaMap.begin(); iter != mediaMap.end(); iter++) {
+//        iter->second->accept(MessageVisitor::getInstance());
+//        if (MessageVisitor::getInstance()->getMessage() == "ComboMedia"){
+//
+//            printAllObject(mediaMap, ss, (ComboMedia*)iter->second);
+//
+//            std::cout << iter->first << " = " << ss.str() << " = ";
+//
+//            iter->second->accept(&dv);
+//
+//            std::cout<< dv.getDescription() << std::endl;
+//
+//            ss.str(""); ss.clear();
+//        } else {
+//            iter->second->accept(&dv);
+//            std::cout<< iter->first << " = " << dv.getDescription() << std::endl;
+//        }
+//    }
+//
+//}
+
+TEST (1_CommandManager_Execute, HW7) {
+
+    std::map<std::string, Media *> std_MediaMap;
+    CommandManager std_cmdM;
+
+    DefCommand * std_defCMD_1 = new DefCommand(std_MediaMap, "cSmall", "Circle(1,1,2)");
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+
+    cmdM.executeCMD(defCMD_1);
+
+    // We check the state between std_MediaMap and mediaMap is same or not
+    // while command executed.
+    CHECK( !mapCompare(std_MediaMap, mediaMap) );
+
+}
+
+TEST (1_CommandManager_Undo, HW7) {
+
+    std::map<std::string, Media *> std_MediaMap;
+    CommandManager std_cmdM;
+
+    DefCommand * std_defCMD_1 = new DefCommand(std_MediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * std_defCMD_2 = new DefCommand(std_MediaMap, "COMBO", "combo{}");
+    AddCommand * std_addCMD_1 = new AddCommand(std_MediaMap, "cSmall", "COMBO");
+
+    std_cmdM.executeCMD(std_defCMD_1);
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "COMBO", "combo{}");
+    AddCommand * addCMD_1 = new AddCommand(mediaMap, "cSmall", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(addCMD_1);
+    cmdM.undoCMD();
+    cmdM.undoCMD();
+
+    CHECK( mapCompare(std_MediaMap, mediaMap) );
+
+}
+
+TEST (1_CommandManager_Redo, HW7) {
+
+    std::map<std::string, Media *> std_MediaMap;
+    CommandManager std_cmdM;
+
+    DefCommand * std_defCMD_1 = new DefCommand(std_MediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * std_defCMD_2 = new DefCommand(std_MediaMap, "COMBO", "combo{}");
+    AddCommand * std_addCMD_1 = new AddCommand(std_MediaMap, "cSmall", "COMBO");
+
+    std_cmdM.executeCMD(std_defCMD_1);
+    std_cmdM.executeCMD(std_defCMD_2);
+    std_cmdM.executeCMD(std_addCMD_1);
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "COMBO", "combo{}");
+    AddCommand * addCMD_1 = new AddCommand(mediaMap, "cSmall", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(addCMD_1);
+
+    cmdM.undoCMD();
+    cmdM.undoCMD();
+    cmdM.redoCMD();
+    cmdM.redoCMD();
+
+    CHECK( mapCompare(std_MediaMap, mediaMap) );
+
+}
+
+TEST (1_CommandManager_NewRedo, HW7) {
+
+    std::map<std::string, Media *> std_MediaMap;
+    CommandManager std_cmdM;
+
+    DefCommand * std_defCMD_1 = new DefCommand(std_MediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * std_defCMD_2 = new DefCommand(std_MediaMap, "COMBO", "combo{}");
+    DefCommand * std_defCMD_3 = new DefCommand(std_MediaMap, "rTall", "Rectangle(0,0,3,2)");
+
+    AddCommand * std_addCMD_1 = new AddCommand(std_MediaMap, "cSmall", "COMBO");
+    AddCommand * std_addCMD_2 = new AddCommand(std_MediaMap, "rTall", "COMBO");
+
+    std_cmdM.executeCMD(std_defCMD_1);
+    std_cmdM.executeCMD(std_defCMD_2);
+    std_cmdM.executeCMD(std_defCMD_3);
+    std_cmdM.executeCMD(std_addCMD_2);
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "COMBO", "combo{}");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
+
+    AddCommand * addCMD_1 = new AddCommand(mediaMap, "cSmall", "COMBO");
+    AddCommand * addCMD_2 = new AddCommand(mediaMap, "rTall", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(defCMD_3);
+    cmdM.executeCMD(addCMD_1);
+
+    cmdM.undoCMD();
+    cmdM.executeCMD(addCMD_2);
+
+    // When you execute a new command, the redo stack will be clear.
+    // So, here should have no effect on mediaMap.
+    cmdM.redoCMD();
+
+    CHECK( mapCompare(std_MediaMap, mediaMap) );
+
+}
+
+TEST (2_AddCommand_Execute, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "COMBO", "combo{}");
+
+    AddCommand * addCMD_1 = new AddCommand(mediaMap, "cSmall", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(addCMD_1);
+
+    ComboMedia * cmp = (ComboMedia *)mediaMap[std::string("COMBO")];
+    DescriptionVisitor dv;
+    cmp->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(c(1 1 2)) "))));
+
+}
+
+TEST (2_AddCommand_Uedo, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "COMBO", "combo{}");
+
+    AddCommand * addCMD_1 = new AddCommand(mediaMap, "cSmall", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+
+    cmdM.executeCMD(addCMD_1);
+    cmdM.undoCMD();
+
+    ComboMedia * cmp = (ComboMedia *)mediaMap[std::string("COMBO")];
+    DescriptionVisitor dv;
+    cmp->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo() "))));
+
+}
+
+TEST (2_AddCommand_Redo, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "COMBO", "combo{}");
+
+    AddCommand * addCMD_1 = new AddCommand(mediaMap, "cSmall", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+
+    cmdM.executeCMD(addCMD_1);
+    cmdM.undoCMD();
+    cmdM.redoCMD();
+
+    ComboMedia * cmp = (ComboMedia *)mediaMap[std::string("COMBO")];
+    DescriptionVisitor dv;
+    cmp->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(c(1 1 2)) "))));
+
+}
+
+TEST (3_DefintionCommand_Execute, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(defCMD_3);
+
+    ComboMedia * cmp = (ComboMedia *)mediaMap[std::string("COMBO")];
+    DescriptionVisitor dv;
+    cmp->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(c(1 1 2)r(0 0 3 2)) "))));
+
+}
+
+TEST (3_DefintionCommand_Undo, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+
+    cmdM.executeCMD(defCMD_3);
+    cmdM.undoCMD();
+
+    std::map<std::string, Media *>::iterator it;
+    it = mediaMap.find(std::string("COMBO"));
+
+    CHECK(it == mediaMap.end());
+
+}
+
+TEST (3_DefintionCommand_Redo, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+
+    cmdM.executeCMD(defCMD_3);
+    cmdM.undoCMD();
+    cmdM.redoCMD();
+
+    ComboMedia * cmp = (ComboMedia *)mediaMap[std::string("COMBO")];
+    DescriptionVisitor dv;
+    cmp->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(c(1 1 2)r(0 0 3 2)) "))));
+
+}
+
+TEST (4_DeleteCommand_Execute, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+
+    DeleteCommand * delCMD_1 = new DeleteCommand(mediaMap, "cSmall", "from", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(defCMD_3);
+
+    cmdM.executeCMD(delCMD_1);
+
+    std::map<std::string, Media *>::iterator it;
+    it = mediaMap.find("cSmall");
+    CHECK(it != mediaMap.end());
+
+    DescriptionVisitor dv;
+    mediaMap["COMBO"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)) "))));
+
+}
+
+TEST (4_DeleteCommand_Undo, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+
+    DeleteCommand * delCMD_1 = new DeleteCommand(mediaMap, "cSmall", "from", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(defCMD_3);
+
+    cmdM.executeCMD(delCMD_1);
+    cmdM.undoCMD();
+
+    DescriptionVisitor dv;
+    mediaMap["COMBO"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)c(1 1 2)) "))));
+
+}
+
+TEST (4_DeleteCommand_Redo, HW7) {
+
+    std::map<std::string, Media *> mediaMap;
+    CommandManager cmdM;
+
+    DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
+    DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+
+    DeleteCommand * delCMD_1 = new DeleteCommand(mediaMap, "cSmall", "from", "COMBO");
+
+    cmdM.executeCMD(defCMD_1);
+    cmdM.executeCMD(defCMD_2);
+    cmdM.executeCMD(defCMD_3);
+
+    cmdM.executeCMD(delCMD_1);
+    cmdM.undoCMD();
+    cmdM.redoCMD();
+
+    DescriptionVisitor dv;
+    mediaMap["COMBO"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)) "))));
+
+}
 
 /**< previous test */
 
