@@ -89,7 +89,7 @@
 			<Option target="test_Debug" />
 		</Unit>
 		<Unit filename="Shapes.h">
-			<Option target="&lt;{~None~}&gt;" />
+			<Option target="test_Debug" />
 		</Unit>
 		<Unit filename="Visitor.cpp">
 			<Option target="Debug" />

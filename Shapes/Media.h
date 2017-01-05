@@ -34,7 +34,6 @@ public:
 
     void accept(MediaVisitor * mv);
 
-    ~ShapeMedia();
 };
 
 class ComboMedia : public Media {
@@ -47,7 +46,7 @@ public:
 
     ComboMedia();
 
-    ComboMedia(const std::vector<Media *> & mds): medias(mds){}
+    ComboMedia(std::vector<Media *> & mds): medias(mds){}
 
     void add(Media * ma);
 
@@ -60,8 +59,6 @@ public:
     double perimeter() const;
 
     void accept(MediaVisitor * mv);
-
-    ~ComboMedia();
 
 };
 

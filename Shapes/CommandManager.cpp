@@ -35,3 +35,4 @@ void CommandManager::redoCMD() {
     stackRedoCMDs.pop();
 
 }
+

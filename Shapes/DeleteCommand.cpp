@@ -7,6 +7,8 @@ void DeleteCommand::execute() {
 
     deletedMedia = mediaMap[objectName];
 
+    std::map<std::string, Media *>::iterator it;
+
     if (secondToken == "from") {
 
         getPostionOfDeletedMedia(deletedMedia, (ComboMedia *)mediaMap[object]);

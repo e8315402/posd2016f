@@ -10,6 +10,8 @@
 #include <sstream>
 #include <math.h>
 
+#include <iostream>
+
 typedef struct Coordinate
 {
     double x;

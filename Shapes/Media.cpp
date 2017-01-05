@@ -19,9 +19,9 @@ void ShapeMedia::accept(MediaVisitor * mv){
     mv->ShapeMediaVisitor(this);
 }
 
-ShapeMedia::~ShapeMedia() {
-    shape->~Shape();
-}
+//ShapeMedia::~ShapeMedia() {
+//    shape->~Shape();
+//}
 
 /**< TextMedia */
 std::string TextMedia::getText(){
@@ -95,7 +95,7 @@ void ComboMedia::accept(MediaVisitor * mv){
     mv->ComboMediaVisitor(this);
 }
 
-ComboMedia::~ComboMedia(){
-        for (Media * mp : medias)
-            mp->~Media();
-}
+//ComboMedia::~ComboMedia(){
+//        for (Media * mp : medias)
+//            mp->~Media();
+//}

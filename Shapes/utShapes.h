@@ -49,7 +49,6 @@ bool mapCompare (std::map<std::string, Media *> leftOne, std::map<std::string, M
     return true;
 }
 
-
 //void show(std::map<std::string, Media *> & mediaMap) {
 //
 //    if(mediaMap.size() == 0) {
@@ -343,77 +342,154 @@ TEST (3_DefintionCommand_Redo, HW7) {
 
 TEST (4_DeleteCommand_Execute, HW7) {
 
+    DescriptionVisitor dv;
+    std::map<std::string, Media *>::iterator it;
+
     std::map<std::string, Media *> mediaMap;
     CommandManager cmdM;
 
     DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
     DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
     DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+    DefCommand * defCMD_4 = new DefCommand(mediaMap, "COMBO2", "combo{COMBO}");
 
     DeleteCommand * delCMD_1 = new DeleteCommand(mediaMap, "cSmall", "from", "COMBO");
+    DeleteCommand * delCMD_2 = new DeleteCommand(mediaMap, "rTall", "", "");
+    DeleteCommand * delCMD_3 = new DeleteCommand(mediaMap, "COMBO", "from", "COMBO2");
 
     cmdM.executeCMD(defCMD_1);
     cmdM.executeCMD(defCMD_2);
     cmdM.executeCMD(defCMD_3);
+    cmdM.executeCMD(defCMD_4);
 
+    /** delete cSmall from COMBO */
     cmdM.executeCMD(delCMD_1);
 
-    std::map<std::string, Media *>::iterator it;
     it = mediaMap.find("cSmall");
     CHECK(it != mediaMap.end());
 
-    DescriptionVisitor dv;
     mediaMap["COMBO"]->accept(&dv);
     CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)) "))));
+
+    /** delete rTall */
+    cmdM.executeCMD(delCMD_2);
+
+    it = mediaMap.find("rTall");
+    CHECK(it == mediaMap.end());
+
+    mediaMap["COMBO"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo() "))));
+
+    /** delete COMBO from COMBO2 */
+    cmdM.executeCMD(delCMD_3);
+
+    it = mediaMap.find("COMBO");
+    CHECK(it != mediaMap.end());
+
+    mediaMap["COMBO2"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo() "))));
 
 }
 
 TEST (4_DeleteCommand_Undo, HW7) {
 
+    DescriptionVisitor dv;
+    std::map<std::string, Media *>::iterator it;
+
     std::map<std::string, Media *> mediaMap;
     CommandManager cmdM;
 
     DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
     DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
-    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{rTall,cSmall}");
+    DefCommand * defCMD_4 = new DefCommand(mediaMap, "COMBO2", "combo{COMBO}");
 
     DeleteCommand * delCMD_1 = new DeleteCommand(mediaMap, "cSmall", "from", "COMBO");
+    DeleteCommand * delCMD_2 = new DeleteCommand(mediaMap, "cSmall", "", "");
+    DeleteCommand * delCMD_3 = new DeleteCommand(mediaMap, "COMBO", "from", "COMBO2");
 
     cmdM.executeCMD(defCMD_1);
     cmdM.executeCMD(defCMD_2);
     cmdM.executeCMD(defCMD_3);
+    cmdM.executeCMD(defCMD_4);
 
+    /** Undo: delete cSmall from COMBO */
     cmdM.executeCMD(delCMD_1);
     cmdM.undoCMD();
 
-    DescriptionVisitor dv;
     mediaMap["COMBO"]->accept(&dv);
     CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)c(1 1 2)) "))));
+
+    /** Undo: delete cSmall */
+    cmdM.executeCMD(delCMD_2);
+    cmdM.undoCMD();
+
+    it = mediaMap.find("cSmall");
+    CHECK(it != mediaMap.end());
+
+    mediaMap["COMBO"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)c(1 1 2)) "))));
+
+    /** Undo: delete COMBO from COMBO2 */
+    cmdM.executeCMD(delCMD_3);
+    cmdM.undoCMD();
+
+    mediaMap["COMBO2"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(combo(r(0 0 3 2)c(1 1 2)) ) "))));
 
 }
 
 TEST (4_DeleteCommand_Redo, HW7) {
 
+    DescriptionVisitor dv;
+    std::map<std::string, Media *>::iterator it;
+
     std::map<std::string, Media *> mediaMap;
     CommandManager cmdM;
 
     DefCommand * defCMD_1 = new DefCommand(mediaMap, "cSmall", "Circle(1,1,2)");
     DefCommand * defCMD_2 = new DefCommand(mediaMap, "rTall", "Rectangle(0,0,3,2)");
-    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{cSmall,rTall}");
+    DefCommand * defCMD_3 = new DefCommand(mediaMap, "COMBO", "combo{rTall,cSmall}");
+    DefCommand * defCMD_4 = new DefCommand(mediaMap, "COMBO2", "combo{COMBO}");
 
     DeleteCommand * delCMD_1 = new DeleteCommand(mediaMap, "cSmall", "from", "COMBO");
+    DeleteCommand * delCMD_2 = new DeleteCommand(mediaMap, "cSmall", "", "");
+    DeleteCommand * delCMD_3 = new DeleteCommand(mediaMap, "COMBO", "from", "COMBO2");
 
     cmdM.executeCMD(defCMD_1);
     cmdM.executeCMD(defCMD_2);
     cmdM.executeCMD(defCMD_3);
+    cmdM.executeCMD(defCMD_4);
 
+    /** Redo: delete cSmall from COMBO */
     cmdM.executeCMD(delCMD_1);
     cmdM.undoCMD();
     cmdM.redoCMD();
 
-    DescriptionVisitor dv;
+    it = mediaMap.find("cSmall");
+    CHECK(it != mediaMap.end());
+
     mediaMap["COMBO"]->accept(&dv);
     CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)) "))));
+
+    /** Undo: delete cSmall */
+    cmdM.executeCMD(delCMD_2);
+    cmdM.undoCMD();
+    cmdM.redoCMD();
+
+    it = mediaMap.find("cSmall");
+    CHECK(it == mediaMap.end());
+
+    mediaMap["COMBO"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo(r(0 0 3 2)) "))));
+
+    /** Undo: delete COMBO from COMBO2 */
+    cmdM.executeCMD(delCMD_3);
+    cmdM.undoCMD();
+    cmdM.redoCMD();
+
+    mediaMap["COMBO2"]->accept(&dv);
+    CHECK(!(dv.getDescription().compare(std::string("combo() "))));
 
 }
 
@@ -441,12 +517,11 @@ TEST (3_createTriangle, HW1) {
     vertex vertex_3 = {4, 3};
 
     try {
-        // This is a triangle
+//        This is a triangle
         Triangle tri(vertex_1, vertex_2, vertex_3);
 
         CHECK(true);
 
-        tri.~Triangle();
     } catch (std::string msg) {
 
         FAIL("It's a triangle.");
@@ -458,7 +533,7 @@ TEST (3_createTriangle, HW1) {
     vertex vertex_6 = {3, 3};
 
     try {
-        // This is not a triangle
+//        This is not a triangle
         Triangle tri(vertex_4, vertex_5, vertex_6);
 
         FAIL("It's not a triangle.");
@@ -481,8 +556,6 @@ TEST (4_perimeterOfTriangle, HW1) {
 
     DOUBLES_EQUAL(9.1529824, tri.perimeter(), epsilon);
 
-    tri.~Triangle();
-
 }
 
 TEST (5_areaOfTriangle, HW1) {
@@ -494,8 +567,6 @@ TEST (5_areaOfTriangle, HW1) {
     Triangle tri(vertex_1, vertex_2, vertex_3);
 
     DOUBLES_EQUAL(4, tri.area(), epsilon);
-
-    tri.~Triangle();
 
 }
 
@@ -511,10 +582,6 @@ TEST (6_sumOfPerimetersOfaNumberOfShapes, HW1) {
     shapes.push_back(&tri);
 
     DOUBLES_EQUAL(143.7205896, sumOfPerimeter(shapes), epsilon);
-
-    cir.~Circle();
-    rect.~Rectangle();
-    tri.~Triangle();
 
 }
 
@@ -532,10 +599,6 @@ TEST (1_theLargestArea, HW2) {
 
     CHECK(!((*largestShape).getShapeName().compare("largestRect")));
 
-    cir.~Circle();
-    rect.~Rectangle();
-    tri.~Triangle();
-
 }
 
 TEST (1_createShapeMedia, Composite) {
@@ -545,8 +608,6 @@ TEST (1_createShapeMedia, Composite) {
 
     DOUBLES_EQUAL(50.265482, smC1.perimeter(), epsilon);
     DOUBLES_EQUAL(201.06193, smC1.area(), epsilon);
-
-    smC1.~ShapeMedia();
 
 }
 
@@ -569,8 +630,6 @@ TEST (2_createComboMedia, Composite) {
 
     DOUBLES_EQUAL(242.06193, cb.area(), epsilon);
     DOUBLES_EQUAL(86.265482, cb.perimeter(), epsilon);
-
-    cb.~ComboMedia();
 
 }
 
@@ -595,8 +654,6 @@ TEST (1_addShapeMediaIntoComboMedia, HW3) {
 
     DOUBLES_EQUAL(10.392, cb2.area(), epsilon);
     DOUBLES_EQUAL(25.855824, cb2.perimeter(), epsilon);
-
-    cb2.~ComboMedia();
 
 }
 
@@ -633,9 +690,6 @@ TEST (2_visitMediaForArea, HW3) {
     cb2.accept(&av);
     DOUBLES_EQUAL(10.392, av.getArea(), epsilon);
 
-    cb2.~ComboMedia();
-    av.~AreaVisitor();
-
 }
 
 TEST (3_visitMediaForPerimeter, HW3) {
@@ -671,9 +725,6 @@ TEST (3_visitMediaForPerimeter, HW3) {
     cb2.accept(&pv);
     DOUBLES_EQUAL(25.855824, pv.getPerimeter(), epsilon);
 
-    cb2.~ComboMedia();
-    pv.~PerimeterVisitor();
-
 }
 
 TEST (1_ShapeMediaBuilder, HW4){
@@ -685,7 +736,6 @@ TEST (1_ShapeMediaBuilder, HW4){
     DOUBLES_EQUAL(31.415927, ma->perimeter(),epsilon);
     DOUBLES_EQUAL(78.539816, ma->area(), epsilon);
 
-    ma->~Media();
 }
 
 TEST (2_BuildTheHouse, HW4){
@@ -797,7 +847,6 @@ TEST(4_RemoveShapeMedia, HW4) {
 
 }
 
-//
 //TEST (1_readFileFromTXT, HW5) {
 //
 //    MyDocument myShape;
@@ -814,7 +863,7 @@ TEST(4_RemoveShapeMedia, HW4) {
 //    myShape.~MyDocument();
 //
 //}
-
+//
 //TEST (2_buildMediaByDirector, HW5) {
 //
 //    Document myShape;
@@ -841,8 +890,6 @@ TEST(4_RemoveShapeMedia, HW4) {
 //
 //    CHECK(strLine == "combo(r(0 0 3 2)c(0 0 5)combo(r(0 0 5 4)c(0 0 10)) combo(r(0 1 8 7)c(0 1 10)) ) ");
 //
-//    myShape.~Document();
-//    dv.~DescriptionVisitor();
 //}
 
 
